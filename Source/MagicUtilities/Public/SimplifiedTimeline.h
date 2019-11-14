@@ -1,3 +1,5 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -6,6 +8,10 @@
 #include "Curves/CurveFloat.h"
 #include "Engine/EngineTypes.h"
 #include "SimplifiedTimeline.generated.h"
+
+/**
+ * 
+ */
 
 
 UENUM(BlueprintType)		//"BlueprintType" is essential to include
@@ -18,7 +24,7 @@ enum class ESimplifiedTimelineDirection : uint8
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FSimplifiedTimerDelegate, float, CurrentValue, ESimplifiedTimelineDirection, Direction);
 
 UCLASS(BlueprintType)
-class MAGICUTILITIES_API  USimplifiedTimeline : public UObject
+class MAGICUTILITIES_API USimplifiedTimeline : public UObject
 {
 	GENERATED_BODY()
 
@@ -27,7 +33,7 @@ private:
 
 	float UpdateInterval = 0.01f;
 
-	ESimplifiedTimelineDirection CurrentDirection;
+	ESimplifiedTimelineDirection CurrentDirection = ESimplifiedTimelineDirection::Forward;
 
 	FTimerHandle TimerUpdateHandle;
 
@@ -40,14 +46,13 @@ private:
 	float CurveEndTime;
 	float CurrentValue;
 
-	UFUNCTION()
-		void UpdateTimer();
-
 	void StartTimer();
+
+	UFUNCTION(Category = "Simplified Timeline")
+		void UpdateTimer();
 
 public:
 
-	~USimplifiedTimeline();
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Simplified Timeline", Meta = (ExposeOnSpawn = true))
 		float PlaybackFrequency = 100;
@@ -63,9 +68,8 @@ public:
 
 	// Functions
 
-	UFUNCTION(BlueprintCallable, Category = "Simplified Timeline"/*, meta = (HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject")*/)
-		void Play();
-	
+	UFUNCTION(BlueprintCallable, Category = "Simplified Timeline", meta = (HidePin = "WorldContextObject", DefaultToSelf = "WorldContextObject"))
+		void Play(UObject* WorldContextObject);	
 
 	UFUNCTION(BlueprintCallable, Category = "Simplified Timeline")
 		void Pause();
