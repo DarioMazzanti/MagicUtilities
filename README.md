@@ -42,6 +42,13 @@ The ARScreen allows you to display 3D objects as seen through a window (ideally 
 
 C++ Geometry-related utilities: will grow as needed. You can use these functions also from within your Blueprints.
 
+### SimplifiedTimeline
+
+Sometimes you just want to use timelines on the fly, even on ActorComponents. This UObject derived class helps you doing just that!
+
+
+#### Usage:
+In one of your Blueprints, construct a new object of type *SimplifiedTimeline* (it can be in your ConstructionScript, if you have one, or on BeginPlay). Remember to set the curve for your timeline, and the update rate, in Hz. Then, all you need to do is to call the Play function on the *SimplifiedTimeline*. By calling the Reverse function, you will reverse the *SimplifiedTimeline*. Then, you can bind some event to the OnTimerUpdate and OnTimerFinished delegates of the *SimplifiedTimeline*.
 
 ___
 This utility is developed and maintained by [Dario Mazzanti](https://www.dariomazzanti.com).  
