@@ -8,21 +8,8 @@ public class MagicUtilities : ModuleRules
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 		
-		PublicIncludePaths.AddRange(
-			new string[] {
-				"MagicUtilities/Public"
-				// ... add public include paths required here ...
-			}
-			);
-				
-		
-		PrivateIncludePaths.AddRange(
-			new string[] {
-				"MagicUtilities/Private",
-				// ... add other private include paths required here ...
-			}
-			);
-			
+		PrivateIncludePaths.AddRange(new string[] { Path.Combine(ModuleDirectory, "Private") });
+        	PublicIncludePaths.AddRange(new string[] { Path.Combine(ModuleDirectory, "Public") });
 		
 		PublicDependencyModuleNames.AddRange(
 			new string[]
