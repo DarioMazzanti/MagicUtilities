@@ -1,18 +1,18 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
 #include "SimplifiedTimeline.h"
 
 
-USimplifiedTimeline::~USimplifiedTimeline()
+
+void USimplifiedTimeline::Play(UObject* WorldContextObject)
 {
-	Stop();
-}
 
+	CurrentDirection = ESimplifiedTimelineDirection::Forward;
 
-
-void USimplifiedTimeline::Play()
-{
 	if (!bIsPlaying)
 	{
-		World = GetOuter()->GetWorld();
+		World = GEngine->GetWorldFromContextObject(WorldContextObject);
 
 		if (World != nullptr && Curve != nullptr)
 			StartTimer();
@@ -57,7 +57,10 @@ void USimplifiedTimeline::StartTimer()
 	// setup update interval based on frequency
 	UpdateInterval = 1.0 / PlaybackFrequency;
 
-	World->GetTimerManager().SetTimer(TimerUpdateHandle, this, &USimplifiedTimeline::UpdateTimer, PlaybackFrequency, true);
+	World->GetTimerManager().ClearAllTimersForObject(this);
+	World->GetTimerManager().SetTimer(TimerUpdateHandle, this, &USimplifiedTimeline::UpdateTimer, UpdateInterval, true);
+	
+	
 	bIsPlaying = true;
 }
 
@@ -83,18 +86,19 @@ void USimplifiedTimeline::Stop()
 {
 	if (bIsPlaying)
 	{		
-		if (World != nullptr && TimerUpdateHandle.IsValid())
-			World->GetTimerManager().ClearTimer(TimerUpdateHandle);
+		if (World != nullptr)
+		{
+			if(World->GetTimerManager().TimerExists(TimerUpdateHandle))
+				World->GetTimerManager().ClearTimer(TimerUpdateHandle);
 
-		bIsPlaying = false;
-		CurrTime = 0.0;
+			bIsPlaying = false;			
+		}
 	}
 }
 
 void USimplifiedTimeline::Reverse()
 {
 	CurrentDirection = ESimplifiedTimelineDirection::Backward;
-
 	if (!bIsPlaying)
 	{
 		if (World != nullptr && Curve != nullptr)
@@ -120,9 +124,6 @@ void USimplifiedTimeline::UpdateTimer()
 		if (CurrTime >= CurveEndTime)
 		{
 			CurrTime = CurveEndTime;
-			Stop();
-			CurrentValue = Curve->GetFloatValue(CurrTime);
-
 			bHasFinished = true;
 		}
 
@@ -132,10 +133,7 @@ void USimplifiedTimeline::UpdateTimer()
 		CurrTime -= UpdateInterval;
 		if (CurrTime <= CurveStartTime)
 		{
-			CurrTime = CurveStartTime;
-			Stop();
-			CurrentValue = Curve->GetFloatValue(CurrTime);
-
+			CurrTime = CurveStartTime;			
 			bHasFinished = true;
 		}
 		break;
@@ -143,9 +141,12 @@ void USimplifiedTimeline::UpdateTimer()
 		break;
 	}
 
+	CurrentValue = Curve->GetFloatValue(CurrTime);
 	OnTimerUpdate.Broadcast(CurrentValue, CurrentDirection);
 
-	if(bHasFinished)
-		OnTimerFinished.Broadcast(CurrentValue, CurrentDirection);
+	if (bHasFinished)
+	{
+		Stop();
+		OnTimerFinished.Broadcast(CurrentValue, CurrentDirection);		
+	}
 }
-
